@@ -1,4 +1,7 @@
+# Basis-Image: Aktuelles Debian Slim
 FROM debian:bookworm-slim
+
+# Setze non-interaktiven Modus für apt
 ENV DEBIAN_FRONTEND=noninteractive
 
 # System-Updates und alle benötigten Pakete installieren
@@ -9,6 +12,7 @@ RUN apt-get update && \
         perl \
         wget \
         tar \
+        gzip \
         bash-completion \
         cron \
         libdbd-mysql-perl \
@@ -56,11 +60,14 @@ ENV LC_ALL en_US.UTF-8
 # Arbeitsverzeichnis setzen
 WORKDIR /opt
 
-# Znuny herunterladen, entpacken und Symlink setzen
+# Znuny herunterladen und entpacken
 RUN wget https://download.znuny.org/releases/znuny-latest-7.1.tar.gz && \
     tar xfz znuny-latest-7.1.tar.gz && \
-    ln -s $(ls -d /opt/znuny-*) /opt/znuny && \
-    cp /opt/znuny/Kernel/Config.pm.dist /opt/znuny/Kernel/Config.pm
+    # Verzeichnisname dynamisch ermitteln (z.B. znuny-7.1.7)
+    export ZNUNY_DIR=$(tar tzf znuny-latest-7.1.tar.gz | head -1 | cut -f1 -d"/") && \
+    # Symlink erst erstellen, wenn Ziel existiert
+    ln -s "/opt/$ZNUNY_DIR" /opt/znuny && \
+    cp "/opt/$ZNUNY_DIR/Kernel/Config.pm.dist" "/opt/$ZNUNY_DIR/Kernel/Config.pm"
 
 # Znuny-Benutzer anlegen (Debian/Ubuntu-Variante)
 RUN useradd -d /opt/znuny -c 'Znuny user' -g www-data -s /bin/bash -M -N znuny
