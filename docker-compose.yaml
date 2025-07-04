@@ -2,18 +2,12 @@ services:
   znuny-app:
     build: .
     container_name: znuny-app
-    environment:
-      # Datenbankverbindung (wird im Znuny-Installer genutzt)
-      ZNUNY_DB_HOST: db
-      ZNUNY_DB_NAME: znuny
-      ZNUNY_DB_USER: znuny
-      ZNUNY_DB_PASS: znuny_password
     ports:
-      - "8080:80"    # Lokaler Port 8080 auf Container-Port 80
+      - "8080:80"
     depends_on:
-      - db           # Starte erst, wenn DB bereit ist
+      - db
     volumes:
-      - znuny-data:/opt/znuny    # Persistenz für Znuny-Dateien
+      - znuny-data:/opt/znuny
 
   db:
     image: mariadb:10.11
@@ -23,8 +17,9 @@ services:
       MYSQL_DATABASE: znuny
       MYSQL_USER: znuny
       MYSQL_PASSWORD: znuny_password
+    command: --max_allowed_packet=128M --innodb_log_file_size=256M
     volumes:
-      - db-data:/var/lib/mysql   # Persistenz für Datenbank
+      - db-data:/var/lib/mysql
 
 volumes:
   znuny-data:
