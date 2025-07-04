@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   znuny-app:
     build: .
@@ -8,14 +10,20 @@ services:
       - db
     volumes:
       - znuny-data:/opt/znuny
+    environment:
+      - TZ=Europe/Berlin
+      # Add additional environment variables as needed
 
   db:
     image: mariadb:10.11
+    container_name: znuny-db
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root_password
       MYSQL_USER: root
       MYSQL_PASSWORD: znuny_password
+      TZ: Europe/Berlin
+      # Add additional environment variables as needed
     command: --max_allowed_packet=128M --innodb_log_file_size=256M
     volumes:
       - db-data:/var/lib/mysql
