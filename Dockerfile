@@ -3,7 +3,7 @@ FROM debian:bookworm-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# System update and install all required packages
+# System update and installation of all required packages
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         apache2 \
@@ -15,7 +15,36 @@ RUN apt-get update && \
         bash-completion \
         cron \
         libdbd-mysql-perl \
-        ... \
+        libtimedate-perl \
+        libnet-dns-perl \
+        libnet-ldap-perl \
+        libio-socket-ssl-perl \
+        libpdf-api2-perl \
+        libsoap-lite-perl \
+        libtext-csv-xs-perl \
+        libjson-xs-perl \
+        libapache-dbi-perl \
+        libxml-libxml-perl \
+        libxml-libxslt-perl \
+        libyaml-perl \
+        libarchive-zip-perl \
+        libcrypt-eksblowfish-perl \
+        libencode-hanextra-perl \
+        libmail-imapclient-perl \
+        libtemplate-perl \
+        libdatetime-perl \
+        libmoo-perl \
+        libyaml-libyaml-perl \
+        libjavascript-minifier-xs-perl \
+        libcss-minifier-xs-perl \
+        libauthen-sasl-perl \
+        libauthen-ntlm-perl \
+        libhash-merge-perl \
+        libical-parser-perl \
+        libspreadsheet-xlsx-perl \
+        libdata-uuid-perl \
+        mariadb-client \
+        sudo \
         locales \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -39,13 +68,13 @@ RUN wget https://download.znuny.org/releases/znuny-latest-7.1.tar.gz && \
 # Create Znuny user (Debian/Ubuntu variant)
 RUN useradd -d /opt/znuny -c 'Znuny user' -g www-data -s /bin/bash -M -N znuny
 
-# Set permissions for Znuny
+# Set permissions and ownership for Znuny
 RUN /opt/znuny/bin/znuny.SetPermissions.pl --znuny-user=znuny --web-group=www-data
 
-# Initialize cronjobs (copy .dist files)
+# Initialize cronjobs (copy .dist files to actual cron files)
 RUN cd /opt/znuny/var/cron && for foo in *.dist; do cp "$foo" "${foo%.dist}"; done
 
-# Link Apache configuration for Znuny
+# Include Apache configuration for Znuny
 RUN ln -s /opt/znuny/scripts/apache2-httpd.include.conf /etc/apache2/conf-available/znuny.conf
 
 # Enable required Apache modules
@@ -59,12 +88,12 @@ RUN echo "ServerName localhost" > /etc/apache2/conf-available/servername.conf &&
 
 EXPOSE 80
 
-# Schedule Znuny cronjob every 5 minutes
+# Set up Znuny cronjob to run every 5 minutes
 RUN echo "*/5 * * * * znuny /opt/znuny/bin/Cron.sh start > /dev/null 2>&1" > /etc/cron.d/znuny && \
     chmod 0644 /etc/cron.d/znuny && \
     crontab -u znuny /etc/cron.d/znuny
 
-# Copy entrypoint script into container and make it executable
+# Copy entrypoint.sh into the container and make it executable
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
