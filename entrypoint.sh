@@ -1,11 +1,11 @@
 #!/bin/bash
 set -e
 
-# Starte Cron im Hintergrund
+# Start the Cron daemon in the background
 service cron start
 
-# Starte den Znuny Daemon als Znuny-User (wichtig für Hintergrundjobs)
+# Start the Znuny Daemon as the Znuny user (important for background jobs)
 su -s /bin/bash znuny -c "/opt/znuny/bin/znuny.Daemon.pl start"
 
-# Starte Apache im Vordergrund
+# Start Apache in the foreground
 exec apachectl -D FOREGROUND
