@@ -93,5 +93,9 @@ RUN echo "*/5 * * * * znuny /opt/znuny/bin/Cron.sh start > /dev/null 2>&1" > /et
     chmod 0644 /etc/cron.d/znuny && \
     crontab -u znuny /etc/cron.d/znuny
 
-# Startet zuerst cron, dann Apache im Vordergrund
-CMD service cron start && apachectl -D FOREGROUND
+# entrypoint.sh in den Container kopieren und ausführbar machen
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Standard-Entrypoint
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
