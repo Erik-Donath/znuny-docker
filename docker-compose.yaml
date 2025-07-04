@@ -14,7 +14,6 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: znuny
       MYSQL_USER: znuny
       MYSQL_PASSWORD: znuny_password
     command: --max_allowed_packet=128M --innodb_log_file_size=256M
