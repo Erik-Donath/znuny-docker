@@ -3,11 +3,11 @@
 FROM debian:bookworm-slim
 
 # ---- Metadata ----
-LABEL maintainer="Your Name <your.email@example.com>"
+LABEL maintainer="Erik Donath"
 LABEL org.opencontainers.image.title="Znuny"
 ARG ZNUNY_VERSION=7.1.7
 LABEL org.opencontainers.image.version="${ZNUNY_VERSION}"
-LABEL org.opencontainers.image.description="Znuny Docker image with Apache2 and mod_perl"
+LABEL org.opencontainers.image.description="This repository provides a ready-to-use Docker setup for Znuny, including Apache2, Cron, and the Znuny Daemon. MariaDB runs as a separate service for modularity and data safety. Suitable for both testing and production environments."
 
 ENV DEBIAN_FRONTEND=noninteractive
 
