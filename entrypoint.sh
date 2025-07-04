@@ -8,4 +8,4 @@ service cron start
 su -s /bin/bash znuny -c "/opt/znuny/bin/znuny.Daemon.pl start"
 
 # Start Apache in the foreground
-exec apachectl -D FOREGROUND
+exec apache2ctl -D FOREGROUND

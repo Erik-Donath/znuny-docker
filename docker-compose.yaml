@@ -1,18 +1,26 @@
-version: "3.8"
-
 services:
   znuny-app:
     build: .
     container_name: znuny-app
     ports:
       - "8080:80"
+      # - "8443:443" # Uncomment if using SSL and your config supports it
     depends_on:
       - db
     volumes:
-      - znuny-data:/opt/znuny
+      - znuny-var:/opt/znuny/var
+      - znuny-config:/opt/znuny/Kernel/Config
+      - znuny-custom:/opt/znuny/Custom
+      - apache-logs:/var/log/apache2
+      - apache-certs:/etc/apache2/conf/certs
     environment:
-      - TZ=Europe/Berlin
-      # Add additional environment variables as needed
+      TZ: Europe/Berlin
+      LANG: en_US.UTF-8
+      LANGUAGE: en_US:en
+      LC_ALL: en_US.UTF-8
+      # VIRTUAL_HOST: your.domain.com
+      # LETSENCRYPT_HOST: your.domain.com
+      # LETSENCRYPT_EMAIL: your@email.com
 
   db:
     image: mariadb:10.11
@@ -23,11 +31,14 @@ services:
       MYSQL_USER: root
       MYSQL_PASSWORD: znuny_password
       TZ: Europe/Berlin
-      # Add additional environment variables as needed
     command: --max_allowed_packet=128M --innodb_log_file_size=256M
     volumes:
       - db-data:/var/lib/mysql
 
 volumes:
-  znuny-data:
+  znuny-var:
+  znuny-config:
+  znuny-custom:
+  apache-logs:
+  apache-certs:
   db-data:
