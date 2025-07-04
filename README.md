@@ -1,17 +1,46 @@
 # Znuny Docker Setup
 
-This repository provides a ready-to-use Docker setup for [Znuny](https://www.znuny.org/) including Apache2, Cron, and the Znuny Daemon. MariaDB is used as a separate service.  
-**Suitable for testing and production environments.**
+This repository provides a ready-to-use Docker setup for [Znuny](https://www.znuny.org/), including Apache2, Cron, and the Znuny Daemon. MariaDB runs as a separate service.  
+**Suitable for both testing and production environments.**
+
+---
+
+## Table of Contents
+
+- [Features](#features)
+- [Architecture](#architecture)
+- [Requirements](#requirements)
+- [Quick Start](#quick-start)
+- [Environment Variables](#environment-variables)
+- [Installation Guide](#installation-guide)
+- [Data Persistence](#data-persistence)
+- [Important Files](#important-files)
+- [Useful Commands](#useful-commands)
+- [Troubleshooting](#troubleshooting)
+- [Security Recommendations](#security-recommendations)
+- [Contributing](#contributing)
+- [License](#license)
 
 ---
 
 ## Features
 
 - Automated download and installation of Znuny
-- Starts Apache, Cron, and Znuny Daemon inside the container
+- Starts Apache, Cron, and the Znuny Daemon inside the container
 - Persistent storage for Znuny data and MariaDB database
 - Flexible database configuration via Docker Compose
-- Recommended MariaDB settings for large attachments
+- MariaDB settings optimized for large attachments
+
+---
+
+## Architecture
+
+```
+[User] --> [Browser] --> [Apache2/Znuny Docker Container] --> [MariaDB Docker Container]
+```
+
+- All containers are orchestrated via `docker-compose.yaml`.
+- Znuny application and database run as separate containers for modularity and security.
 
 ---
 
@@ -26,23 +55,39 @@ This repository provides a ready-to-use Docker setup for [Znuny](https://www.znu
 
 1. **Clone the repository**
 
-   ```
+   ```sh
    git clone https://github.com/Erik-Donath/znuny-docker.git
    cd znuny-docker
    ```
 
 2. **Build and start the containers**
 
-   ```
+   ```sh
    docker compose up --build
    ```
 
-   The images will be built and the containers started.  
    Znuny will be available at: [http://localhost:8080/znuny/installer.pl](http://localhost:8080/znuny/installer.pl)
 
 ---
 
-## Complete the Installation
+## Environment Variables
+
+### Znuny Service
+
+- `TZ` – Timezone for the container (default: Europe/Berlin).
+
+### MariaDB Service
+
+- `MYSQL_ROOT_PASSWORD` – MariaDB root user password. **Change this for production!**
+- `MYSQL_USER` – MariaDB user for the app (default: root).
+- `MYSQL_PASSWORD` – Password for the MariaDB user (default: znuny_password).
+- `TZ` – Timezone for the container.
+
+These can be set in the `docker-compose.yaml` file.
+
+---
+
+## Installation Guide
 
 1. **Open the Znuny web installer**
 
@@ -54,11 +99,11 @@ This repository provides a ready-to-use Docker setup for [Znuny](https://www.znu
    |-----------|-----------------|
    | Host      | db              |
    | User      | root            |
-   | Password  | root_password   |
+   | Password  | znuny_password  |
    | Database  | znuny           |
 
    > **Note:** The database `znuny` and the Znuny database user will be created automatically by the installer.  
-   > You only need to provide the MariaDB root user and password.
+   > You only need to provide the MariaDB user and password as defined above.
 
 3. **Finish the installer and start using Znuny**
 
@@ -85,21 +130,40 @@ Your data will persist across container restarts and rebuilds as long as you do 
 
 - **Stop the containers:**  
   `docker compose down`
-
 - **Restart the containers:**  
   `docker compose restart`
-
 - **Delete database and Znuny volumes (Warning: data loss!):**  
   `docker compose down -v`
+- **Check logs:**  
+  `docker compose logs`
 
 ---
 
-## Notes & Tips
+## Troubleshooting
 
-- MariaDB is started with settings for large attachments and packets.
-- The Znuny Daemon runs automatically in the container.
-- For production, set secure passwords and consider enabling SSL for Apache.
-- You can back up your data by backing up the Docker volumes.
+- **Znuny is not reachable:**  
+  Check logs with `docker compose logs`. Ensure both containers are running and port 8080 is not in use.
+- **Database connection errors:**  
+  Ensure MariaDB container is running, and credentials match those in the installer.
+- **Permission errors:**  
+  Make sure Docker volumes are not owned by root on the host.
+- **Port conflicts:**  
+  Make sure port 8080 is available on your host.
+
+---
+
+## Security Recommendations
+
+- Change all default passwords before using in production.
+- Consider enabling SSL for Apache.
+- Limit container network exposure as needed.
+- Regularly back up your Docker volumes.
+
+---
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request.
 
 ---
 
