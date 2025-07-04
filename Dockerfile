@@ -1,7 +1,6 @@
 # Basis-Image: Aktuelles Debian Slim
 FROM debian:bookworm-slim
 
-# Setze non-interaktiven Modus für apt
 ENV DEBIAN_FRONTEND=noninteractive
 
 # System-Updates und alle benötigten Pakete installieren
@@ -57,15 +56,12 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
-# Arbeitsverzeichnis setzen
 WORKDIR /opt
 
 # Znuny herunterladen und entpacken
 RUN wget https://download.znuny.org/releases/znuny-latest-7.1.tar.gz && \
     tar xfz znuny-latest-7.1.tar.gz && \
-    # Verzeichnisname dynamisch ermitteln (z.B. znuny-7.1.7)
     export ZNUNY_DIR=$(tar tzf znuny-latest-7.1.tar.gz | head -1 | cut -f1 -d"/") && \
-    # Symlink erst erstellen, wenn Ziel existiert
     ln -s "/opt/$ZNUNY_DIR" /opt/znuny && \
     cp "/opt/$ZNUNY_DIR/Kernel/Config.pm.dist" "/opt/$ZNUNY_DIR/Kernel/Config.pm"
 
@@ -86,7 +82,10 @@ RUN a2dismod mpm_event && \
     a2enmod mpm_prefork headers filter perl cgi && \
     a2enconf znuny
 
-# Webserver-Port freigeben
+# ServerName setzen, um Apache-Warnung zu vermeiden
+RUN echo "ServerName localhost" > /etc/apache2/conf-available/servername.conf && \
+    a2enconf servername
+
 EXPOSE 80
 
 # Cronjob für Znuny alle 5 Minuten einrichten
