@@ -104,11 +104,11 @@ RUN echo "*/5 * * * * znuny /opt/znuny/bin/Cron.sh start > /dev/null 2>&1" > /et
     chmod 0644 /etc/cron.d/znuny && \
     crontab -u znuny /etc/cron.d/znuny
 
-# Copy entrypoint.sh
+# Copy entrypoint.sh, fix line endings, and set executable permissions
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN sed -i 's/\r$//' /usr/local/bin/entrypoint.sh && chmod +x /usr/local/bin/entrypoint.sh
 
 # HEALTHCHECK for Znuny installer
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s CMD curl -f http://localhost/znuny/installer.pl || exit 1
 
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+ENTRYPOINT ["bash", "/usr/local/bin/entrypoint.sh"]
