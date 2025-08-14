@@ -28,7 +28,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set IMAGE_NAME
+      - name: Set IMAGE_NAME (lowercase)
         run: echo "IMAGE_NAME=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Install cosign
@@ -77,8 +77,9 @@ jobs:
 
       - name: Smoke test container health
         run: |
-          IMAGE_NAME="${{ env.IMAGE_NAME }}"
-          docker run --rm -d -p 8080:80 --name znuny-test ${{ env.REGISTRY }}/$IMAGE_NAME:${{ matrix.znuny_version }}
+          # Use first tag from tags list (local image)
+          TAG=$(echo "${{ steps.meta.outputs.tags }}" | head -n1)
+          docker run --rm -d -p 8080:80 --name znuny-test "$TAG"
           sleep 30
           curl --fail http://localhost:8080/znuny/installer.pl
           docker rm -f znuny-test
