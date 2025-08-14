@@ -21,7 +21,11 @@ services:
       # VIRTUAL_HOST: your.domain.com
       # LETSENCRYPT_HOST: your.domain.com
       # LETSENCRYPT_EMAIL: your@email.com
-
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/znuny/installer.pl"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
   db:
     image: mariadb:10.11
     container_name: znuny-db
@@ -34,6 +38,11 @@ services:
     command: --max_allowed_packet=128M --innodb_log_file_size=256M
     volumes:
       - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
 volumes:
   znuny-var:
