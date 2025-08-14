@@ -11,7 +11,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository | toLower }}
+  IMAGE_NAME: ${{ toLower(github.repository) }}
 
 jobs:
   build:
