@@ -11,7 +11,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ${{ github.repository | toLower }}
 
 jobs:
   build:
@@ -23,7 +23,7 @@ jobs:
 
     strategy:
       matrix:
-        znuny_version: [7.1.7]
+        znuny_version: [7.1.8, 7.1.7]
 
     steps:
       - name: Checkout repository
