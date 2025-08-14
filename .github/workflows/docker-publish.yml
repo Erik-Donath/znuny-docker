@@ -28,6 +28,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set IMAGE_NAME
+        run: echo "IMAGE_NAME=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
       - name: Install cosign
         if: github.event_name != 'pull_request'
         uses: sigstore/cosign-installer@v3.5.0
@@ -47,7 +50,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5.0.0
         with:
-          images: ghcr.io/${{ toLower(github.repository) }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           labels: |
             znuny.version=${{ matrix.znuny_version }}
 
@@ -74,8 +77,8 @@ jobs:
 
       - name: Smoke test container health
         run: |
-          IMAGE_NAME="${{ toLower(github.repository) }}"
-          docker run --rm -d -p 8080:80 --name znuny-test ghcr.io/$IMAGE_NAME:${{ matrix.znuny_version }}
+          IMAGE_NAME="${{ env.IMAGE_NAME }}"
+          docker run --rm -d -p 8080:80 --name znuny-test ${{ env.REGISTRY }}/$IMAGE_NAME:${{ matrix.znuny_version }}
           sleep 30
           curl --fail http://localhost:8080/znuny/installer.pl
           docker rm -f znuny-test
