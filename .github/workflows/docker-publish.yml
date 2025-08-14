@@ -11,7 +11,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ toLower(github.repository) }}
 
 jobs:
   build:
@@ -48,7 +47,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5.0.0
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ghcr.io/${{ toLower(github.repository) }}
           labels: |
             znuny.version=${{ matrix.znuny_version }}
 
@@ -75,7 +74,8 @@ jobs:
 
       - name: Smoke test container health
         run: |
-          docker run --rm -d -p 8080:80 --name znuny-test ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.znuny_version }}
+          IMAGE_NAME="${{ toLower(github.repository) }}"
+          docker run --rm -d -p 8080:80 --name znuny-test ghcr.io/$IMAGE_NAME:${{ matrix.znuny_version }}
           sleep 30
           curl --fail http://localhost:8080/znuny/installer.pl
           docker rm -f znuny-test
