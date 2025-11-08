@@ -4,14 +4,14 @@ FROM debian:bookworm-slim
 
 LABEL maintainer="Erik Donath"
 LABEL org.opencontainers.image.title="Znuny"
-ARG ZNUNY_VERSION=7.1.7
+ARG ZNUNY_VERSION="znuny-latest"
 LABEL org.opencontainers.image.version="${ZNUNY_VERSION}"
 LABEL org.opencontainers.image.description="Ready-to-use Docker setup for Znuny, Apache2, Cron, and Znuny Daemon. MariaDB runs as a separate service."
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
 ENV ZNUNY_VERSION=${ZNUNY_VERSION}
 
 # Install dependencies
@@ -67,14 +67,14 @@ RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && \
 WORKDIR /opt
 
 # Download and extract Znuny
-RUN wget https://download.znuny.org/releases/znuny-${ZNUNY_VERSION}.tar.gz && \
-    tar xfz znuny-${ZNUNY_VERSION}.tar.gz && \
-    export ZNUNY_DIR=$(tar tzf znuny-${ZNUNY_VERSION}.tar.gz | head -1 | cut -f1 -d"/") && \
-    if [ "$ZNUNY_DIR" != "znuny-${ZNUNY_VERSION}" ]; then \
-        mv "$ZNUNY_DIR" "znuny-${ZNUNY_VERSION}"; \
+RUN wget https://download.znuny.org/releases/${ZNUNY_VERSION}.tar.gz && \
+    tar xfz ${ZNUNY_VERSION}.tar.gz && \
+    export ZNUNY_DIR=$(tar tzf ${ZNUNY_VERSION}.tar.gz | head -1 | cut -f1 -d"/") && \
+    if [ "$ZNUNY_DIR" != "${ZNUNY_VERSION}" ]; then \
+        mv "$ZNUNY_DIR" "${ZNUNY_VERSION}"; \
     fi && \
-    ln -s "/opt/znuny-${ZNUNY_VERSION}" /opt/znuny && \
-    cp "/opt/znuny-${ZNUNY_VERSION}/Kernel/Config.pm.dist" "/opt/znuny-${ZNUNY_VERSION}/Kernel/Config.pm"
+    ln -s "/opt/${ZNUNY_VERSION}" /opt/znuny && \
+    cp "/opt/${ZNUNY_VERSION}/Kernel/Config.pm.dist" "/opt/${ZNUNY_VERSION}/Kernel/Config.pm"
 
 # Create Znuny user
 RUN useradd -d /opt/znuny -c 'Znuny user' -g www-data -s /bin/bash -M -N znuny

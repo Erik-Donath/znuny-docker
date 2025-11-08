@@ -22,7 +22,7 @@ jobs:
 
     strategy:
       matrix:
-        znuny_version: [7.1.7, 7.2.2, 2.2.3]
+        znuny_version: ["znuny-7.2.2", "znuny-latest"] # znuny-7.1.7 for lagacy
 
     steps:
       - name: Checkout repository
