@@ -22,7 +22,7 @@ jobs:
 
     strategy:
       matrix:
-        znuny_version: [7.1.7]
+        znuny_version: [7.1.7, 7.2.2, 2.2.3]
 
     steps:
       - name: Checkout repository
