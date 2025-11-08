@@ -1,3 +1,5 @@
+[![Docker Publish](https://github.com/Erik-Donath/znuny-docker/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/Erik-Donath/znuny-docker/actions/workflows/docker-publish.yml)
+
 # Znuny Docker Setup
 
 A production-ready Docker setup for [Znuny](https://www.znuny.org/) based on Debian with Apache2, Cron, and the Znuny Daemon. MariaDB is provided as a separate container for modularity and data integrity.
