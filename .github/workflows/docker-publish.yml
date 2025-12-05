@@ -20,14 +20,14 @@ jobs:
 
     strategy:
       matrix:
-        znuny_version: ["znuny-7.2.2", "znuny-latest"] # znuny-7.1.7 for lagacy
+        znuny_version: ["znuny-7.2.2", "znuny-latest"]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set IMAGE_NAME (lowercase)
-        run: echo "IMAGE_NAME=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+      - name: Compute base image name (lowercase)
+        run: echo "BASE_IMAGE_NAME=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Install cosign
         if: github.event_name != 'pull_request'
@@ -44,11 +44,26 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set per-version image name
+        id: imagename
+        run: |
+          # Example: ghcr.io/owner/repo:znuny-7.2.2  and  ghcr.io/owner/repo:7.2.2
+          VERSION="${{ matrix.znuny_version }}"
+          BASE="${{ env.REGISTRY }}/${{ env.BASE_IMAGE_NAME }}"
+          SHORT_VERSION="${VERSION#znuny-}"
+          echo "IMAGE=${BASE}-${VERSION}" >> $GITHUB_ENV
+          echo "TAGS_JSON=$(jq -nc --arg i "$BASE-${VERSION}" --arg v "$SHORT_VERSION" '[$i, "\($i):\($v)"]')" >> $GITHUB_ENV
+        shell: bash
+
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5.0.0
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.IMAGE }}
+          # Optional: add standard tags, then append custom per-version tags
+          tags: |
+            type=ref,event=branch
+            type=ref,event=tag
           labels: |
             znuny.version=${{ matrix.znuny_version }}
 
@@ -58,7 +73,10 @@ jobs:
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
+          # Combine auto-generated tags with explicit per-version tags
+          tags: |
+            ${{ steps.meta.outputs.tags }}
+            ${{ env.IMAGE }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             ZNUNY_VERSION=${{ matrix.znuny_version }}
@@ -69,15 +87,14 @@ jobs:
       - name: Sign the published Docker image
         if: ${{ github.event_name != 'pull_request' }}
         env:
-          TAGS: ${{ steps.meta.outputs.tags }}
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
-        run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+        run: |
+          cosign sign --yes "${{ env.IMAGE }}@${DIGEST}"
 
       - name: Smoke test container health
         run: |
-          # Use first tag from tags list (local image)
-          TAG=$(echo "${{ steps.meta.outputs.tags }}" | head -n1)
-          docker run --rm -d -p 8080:80 --name znuny-test "$TAG"
+          # Use the per-version image tag
+          docker run --rm -d -p 8080:80 --name znuny-test "${{ env.IMAGE }}"
           sleep 30
           curl --fail http://localhost:8080/znuny/installer.pl
           docker rm -f znuny-test
