@@ -20,7 +20,7 @@ jobs:
 
     strategy:
       matrix:
-        znuny_version: ["znuny-7.2.2", "znuny-latest"]
+        znuny_version: ["znuny-7.2.2", "znuny-7.2.3", "znuny-latest"]
 
     steps:
       - name: Checkout repository
