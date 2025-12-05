@@ -56,19 +56,21 @@ A production-ready Docker setup for [Znuny](https://www.znuny.org/) based on Deb
 
 ## Quick Start
 
-1. **Clone the repository**
+1. **Use Github Docker Image**
+  If you dont want to build the Dockerfile manualy on your system please use the github package.
+
+2. **Clone the repository**
 
    ```bash
    git clone https://github.com/Erik-Donath/znuny-docker.git
    cd znuny-docker
    ```
 
-2. **Build and start containers**
+3. **Build and start containers**
    ```bash
    docker compose up --build
    ```
    Znuny will be available at: [http://localhost:8080/znuny/installer.pl](http://localhost:8080/znuny/installer.pl)
-
 ---
 
 ## Configuration
@@ -136,7 +138,7 @@ Back up these volumes regularly for disaster recovery.
   Ensure volumes are not owned by root on the host.
 - **Healthchecks in Compose:**  
   Containers auto-restart if unhealthy.
-
+- Check if you are running on the depricated github package.
 ---
 
 ## Security Recommendations
